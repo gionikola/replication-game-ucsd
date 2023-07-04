@@ -97,11 +97,16 @@ irfs_df_long$variable <- factor(irfs_df_long$variable, levels = c("TFP",
                                                                   "Inflation"))
 
 ### Plot IRFs (Fig 1)
-ggplot(irfs_df_long, aes(x=horizon, y=response)) +
+fig1 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
   geom_line() +
   facet_wrap(. ~ variable, scale = "free", nrow=2) +
   theme_bw() +
   xlab("Quarters") + ylab(NULL)
+fig1 
+
+### Save Fig 1
+ggsave(filename = "figures/fig1.png", fig1,
+       width = 8, height = 4, dpi = 300, units = "in", device='png')
 
 ###############################################
 ###############################################
@@ -148,6 +153,10 @@ p_sloos <- plot_irf(data %>% filter(is.na(sloos)==FALSE),
 ### Plot all facets in same fig (Fig 2)
 fig2 <- ggarrange(p_gz_spread, p_ebp, p_default_risk, p_bank_equity, p_sloos, nrow = 1, ncol = 5)
 fig2
+
+### Save Fig 2
+ggsave(filename = "figures/fig2.png", fig2,
+       width = 12, height = 3, dpi = 300, units = "in", device='png')
 
 ###############################################
 ###############################################
@@ -220,9 +229,14 @@ irfs_df_long$variable <- factor(irfs_df_long$variable, levels = c("TFP",
                                                                   "S&P 500",
                                                                   "Inflation"))
 
-### Plot IRFs (Fig 1)
-ggplot(irfs_df_long, aes(x=horizon, y=response)) +
+### Plot IRFs (Fig 3)
+fig3 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
   geom_line() +
   facet_wrap(. ~ variable, scale = "free", nrow=2) +
   theme_bw() +
   xlab("Quarters") + ylab(NULL)
+
+
+### Save Fig 3
+ggsave(filename = "figures/fig3.png", fig3,
+       width = 8, height = 4, dpi = 300, units = "in", device='png')
