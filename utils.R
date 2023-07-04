@@ -17,6 +17,7 @@ pacman::p_load(dplyr,
                vars, 
                tseries,
                ggplot2,
+               ggpubr,
                expm) 
 
 ###############################################
