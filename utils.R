@@ -159,6 +159,9 @@ plot_irf <- function(data, endog_vars, response_var, h){
   if(gamma_opt[1] < 0){
     gamma_opt = -gamma_opt
   }
+  if(response_var[1] == "bank_equity" && gamma_opt[1] > 0){
+    gamma_opt = -gamma_opt
+  }
   
   ### Generate IRFs
   irfs <- irf(A_mats, impact_mat, gamma_opt, h) * 100
@@ -179,5 +182,6 @@ plot_irf <- function(data, endog_vars, response_var, h){
   
   ggplot(irfs_df_long %>% dplyr::filter(variable %in% response_var), aes(x=horizon,y=response,linetype=variable)) +
     geom_line() +
-    theme_bw()
+    theme_bw() + 
+    xlab("Quarters")
 }
