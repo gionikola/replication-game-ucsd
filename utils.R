@@ -123,3 +123,59 @@ irf <- function(A_mats, impact_mat, gamma_opt, h){
   
   return(responses)
 }
+
+###################################################
+### Plot IRF
+
+plot_irf <- function(data, endog_vars, response, h){
+  
+  # Select VAR-relevant series
+  data_var <- data %>%
+    dplyr::select(any_of(endog_vars))
+  
+  # Estimate VAR
+  estim <- VAR(data_var, p = 4, type = "const")
+  print("Estimated model roots: ")
+  print(summary(estim)$roots)
+  
+  ### Obtain all necessary (reduced-form) matrix objects 
+  A_mats <- get_A(estim, 40)
+  sigma_mat <- get_sigma(estim)
+  impact_mat <- t(chol(sigma_mat))
+  
+  ### Find news shock
+  output_optim_gamma = optim(par = c(1,1,1,1,1,1,1), 
+                             fn = forecast_err_var, 
+                             i = 1, 
+                             A = A_mats, 
+                             Sigma = sigma_mat, 
+                             h=40, 
+                             control = list(fnscale=-1), 
+                             method = "L-BFGS-B",
+                             lower=c(-0.000000000000001,rep(-Inf,6)), 
+                             upper=c(0.000000000000001, rep(Inf,6)))
+  gamma_opt <- -output_optim_gamma$par/norm(output_optim_gamma$par,type="2")
+  if(gamma_opt[1] < 0){
+    gamma_opt = -gamma_opt
+  }
+  
+  ### Generate IRFs
+  irfs <- irf(A_mats, impact_mat, gamma_opt, h) * 100
+  
+  irfs_df <- data.frame(horizon = c(0:h),
+                        endog_vars[1] = irfs[,1],
+                        endog_vars[2] = irfs[,2],
+                        endog_vars[3] = irfs[,3],
+                        endog_vars[4] = irfs[,4],
+                        endog_vars[5] = irfs[,5],
+                        endog_vars[6] = irfs[,6],
+                        endog_vars[7] = irfs[,7])
+  
+  irfs_df_long <- pivot_longer(irfs_df, cols = -c("horizon"), names_to = "variable", values_to = "response") 
+  
+  irfs_df_long$variable <- factor(irfs_df_long$variable, levels = endog_vars)
+  
+  ggplot(irfs_df_long %>% filter(variable==response), aes(x=horizon,y=response,linetype=variable)) +
+    geom_line() +
+    theme_bw()
+}
