@@ -159,7 +159,7 @@ plot_irf <- function(data, endog_vars, response_var, h){
   if(gamma_opt[1] < 0){
     gamma_opt = -gamma_opt
   }
-  if(response_var[1] == "bank_equity" && gamma_opt[1] > 0){
+  if(response_var[1] == "bank_equity" && gamma_opt[5] > 0){
     gamma_opt = -gamma_opt
   }
   
