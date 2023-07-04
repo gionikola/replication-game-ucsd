@@ -127,7 +127,7 @@ irf <- function(A_mats, impact_mat, gamma_opt, h){
 ###################################################
 ### Plot IRF
 
-plot_irf <- function(data, endog_vars, response, h){
+plot_irf <- function(data, endog_vars, response_var, h){
   
   # Select VAR-relevant series
   data_var <- data %>%
@@ -163,19 +163,20 @@ plot_irf <- function(data, endog_vars, response, h){
   irfs <- irf(A_mats, impact_mat, gamma_opt, h) * 100
   
   irfs_df <- data.frame(horizon = c(0:h),
-                        endog_vars[1] = irfs[,1],
-                        endog_vars[2] = irfs[,2],
-                        endog_vars[3] = irfs[,3],
-                        endog_vars[4] = irfs[,4],
-                        endog_vars[5] = irfs[,5],
-                        endog_vars[6] = irfs[,6],
-                        endog_vars[7] = irfs[,7])
+                        irfs[,1],
+                        irfs[,2],
+                        irfs[,3],
+                        irfs[,4],
+                        irfs[,5],
+                        irfs[,6],
+                        irfs[,7])
+  names(irfs_df) = c("horizon",endog_vars)
   
   irfs_df_long <- pivot_longer(irfs_df, cols = -c("horizon"), names_to = "variable", values_to = "response") 
   
   irfs_df_long$variable <- factor(irfs_df_long$variable, levels = endog_vars)
   
-  ggplot(irfs_df_long %>% filter(variable==response), aes(x=horizon,y=response,linetype=variable)) +
+  ggplot(irfs_df_long %>% dplyr::filter(variable %in% response_var), aes(x=horizon,y=response,linetype=variable)) +
     geom_line() +
     theme_bw()
 }
