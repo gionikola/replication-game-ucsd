@@ -188,10 +188,10 @@ A_mats <- get_A(estim, 40)
 sigma_mat <- get_sigma(estim)
 impact_mat <- t(chol(sigma_mat))
 
-### Find news shock
+### Find max FEV EBP shock
 output_optim_gamma = optim(par = c(1,1,1,1,1,1,1), 
                            fn = forecast_err_var, 
-                           i = 1, 
+                           i = 5, 
                            A = A_mats, 
                            Sigma = sigma_mat, 
                            h=40, 
@@ -233,13 +233,70 @@ irfs_df_long$variable <- factor(irfs_df_long$variable, levels = c("TFP",
                                                                   "Excess bond premium",
                                                                   "S&P 500",
                                                                   "Inflation"))
+irfs_df_long = irfs_df_long %>% 
+  mutate(shock = "Max FEV EBP")
+
+### Find news shock
+output_optim_gamma = optim(par = c(1,1,1,1,1,1,1), 
+                           fn = forecast_err_var, 
+                           i = 1, 
+                           A = A_mats, 
+                           Sigma = sigma_mat, 
+                           h=40, 
+                           control = list(fnscale=-1), 
+                           method = "L-BFGS-B",
+                           lower=c(-0.000000000000001,rep(-Inf,6)), 
+                           upper=c(0.000000000000001, rep(Inf,6)))
+gamma_opt <- -output_optim_gamma$par/norm(output_optim_gamma$par,type="2")
+if(gamma_opt[1] < 0){
+  gamma_opt = -gamma_opt
+}
+
+### Generate IRFs
+irfs <- irf(A_mats, impact_mat, gamma_opt, h) * 100
+
+irfs_df <- data.frame(horizon = c(0:h),
+                      tfp = irfs[,1],
+                      output = irfs[,2],
+                      consumption = irfs[,3],
+                      hours = irfs[,4],
+                      ebp = irfs[,5],
+                      sp500 = irfs[,6],
+                      gdp_deflator = irfs[,7])
+names(irfs_df) <- c("horizon", 
+                    "TFP",
+                    "Output",
+                    "Consumption",
+                    "Hours",
+                    "Excess bond premium",
+                    "S&P 500",
+                    "Inflation")
+
+irfs_df_long2 <- pivot_longer(irfs_df, cols = -c("horizon"), names_to = "variable", values_to = "response") 
+
+irfs_df_long2$variable <- factor(irfs_df_long2$variable, levels = c("TFP",
+                                                                  "Output",
+                                                                  "Consumption",
+                                                                  "Hours",
+                                                                  "Excess bond premium",
+                                                                  "S&P 500",
+                                                                  "Inflation"))
+irfs_df_long2$response = -irfs_df_long2$response
+irfs_df_long2 = irfs_df_long2 %>% 
+  mutate(shock = "News shock")
+
+### Combine IRF datasets
+irfs_df_long = rbind(irfs_df_long2, irfs_df_long)
+
+### Reorder shocks
+irfs_df_long$shock <- factor(irfs_df_long$shock, levels = c("News shock", "Max FEV EBP"))
 
 ### Plot IRFs (Fig 3)
-fig3 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
+fig3 <- ggplot(irfs_df_long, aes(x=horizon, y=response, linetype=shock)) +
   geom_line() +
   facet_wrap(. ~ variable, scale = "free", nrow=2) +
   theme_bw() +
-  xlab("Quarters") + ylab(NULL)
+  xlab("Quarters") + ylab(NULL) + theme(legend.position="none")
 
 
 ### Save Fig 3
