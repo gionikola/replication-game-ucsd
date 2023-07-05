@@ -128,7 +128,7 @@ irf <- function(A_mats, impact_mat, gamma_opt, h){
 ###################################################
 ### Plot IRF
 
-plot_irf <- function(data, endog_vars, response_var, h){
+plot_irf <- function(data, endog_vars, response_var, h, flip=FALSE){
   
   # Select VAR-relevant series
   data_var <- data %>%
@@ -159,7 +159,7 @@ plot_irf <- function(data, endog_vars, response_var, h){
   if(gamma_opt[1] < 0){
     gamma_opt = -gamma_opt
   }
-  if(response_var[1] == "bank_equity" && gamma_opt[5] > 0){
+  if(flip == TRUE){
     gamma_opt = -gamma_opt
   }
   
@@ -179,6 +179,10 @@ plot_irf <- function(data, endog_vars, response_var, h){
   irfs_df_long <- pivot_longer(irfs_df, cols = -c("horizon"), names_to = "variable", values_to = "response") 
   
   irfs_df_long$variable <- factor(irfs_df_long$variable, levels = endog_vars)
+  
+  if(response_var[1] == "bank_equity"){
+    irfs_df_long %>% mutate(response = -response)
+  }
   
   ggplot(irfs_df_long %>% dplyr::filter(variable %in% response_var), aes(x=horizon,y=response,linetype=variable)) +
     geom_line() +
