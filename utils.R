@@ -135,7 +135,7 @@ plot_irf <- function(data, endog_vars, response_var, h, flip=FALSE){
     dplyr::select(any_of(endog_vars))
   
   # Estimate VAR
-  estim <- VAR(data_var, p = 4, type = "const")
+  estim <- VAR(data_var, p = 5, type = "const")
   print("Estimated model roots: ")
   print(summary(estim)$roots)
   
