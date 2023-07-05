@@ -144,14 +144,16 @@ p_default_risk<- plot_irf(data,
 p_bank_equity <- plot_irf(data, 
                           c("tfp","output","consumption","hours","bank_equity","sp500","gdp_deflator"), 
                           c("bank_equity"), 
-                          40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Bank equity")
+                          40,
+                          TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Bank equity")
 
 ### SLOOS (facet 5)
 
 p_sloos <- plot_irf(data %>% filter(is.na(sloos)==FALSE), 
                     c("tfp","output","consumption","hours","sloos","sp500","gdp_deflator"), 
                     c("sloos"), 
-                    40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("SLOOS")
+                    40,
+                    TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("SLOOS")
 
 ### Plot all facets in same fig (Fig 2)
 fig2 <- ggarrange(p_gz_spread, p_ebp, p_default_risk, p_bank_equity, p_sloos, nrow = 1, ncol = 5)
@@ -243,3 +245,4 @@ fig3 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
 ### Save Fig 3
 ggsave(filename = "figures/fig3_alt.png", fig3,
        width = 8, height = 4, dpi = 300, units = "in", device='png')
+fig3
