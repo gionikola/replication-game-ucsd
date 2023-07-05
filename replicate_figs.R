@@ -245,3 +245,4 @@ fig3 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
 ### Save Fig 3
 ggsave(filename = "figures/fig3.png", fig3,
        width = 8, height = 4, dpi = 300, units = "in", device='png')
+fig3
