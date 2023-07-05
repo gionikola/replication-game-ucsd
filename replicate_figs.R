@@ -141,7 +141,8 @@ p_default_risk<- plot_irf(data,
 p_bank_equity <- plot_irf(data, 
          c("tfp","output","consumption","hours","bank_equity","sp500","gdp_deflator"), 
          c("bank_equity"), 
-         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Bank equity")
+         40,
+         TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Bank equity")
 
 ### SLOOS (facet 5)
 
