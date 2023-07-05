@@ -36,12 +36,15 @@ data <- data[1:133,]
 # Set IRF length
 h=40
 
+# Set VAR number of lags 
+p=5
+
 # Select VAR-relevant series
 data_var <- data %>%
   dplyr::select(tfp, output, consumption, hours, gz_spread, sp500, gdp_deflator)
 
 # Estimate VAR
-estim <- VAR(data_var, p = 4, type = "const")
+estim <- VAR(data_var, p = p, type = "const")
 print("Estimated model roots: ")
 print(summary(estim)$roots)
 
@@ -127,7 +130,8 @@ p_gz_spread <- plot_irf(data,
 p_ebp <- plot_irf(data, 
          c("tfp","output","consumption","hours","ebp","sp500","gdp_deflator"), 
          c("ebp"), 
-         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Excess bond premium")
+         40,
+         TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Excess bond premium")
 
 ### Default risk (facet 3)
 
@@ -175,7 +179,7 @@ data_var <- data %>%
   dplyr::select(tfp, output, consumption, hours, ebp, sp500, gdp_deflator)
 
 # Estimate VAR
-estim <- VAR(data_var, p = 4, type = "const")
+estim <- VAR(data_var, p = p, type = "const")
 print("Estimated model roots: ")
 print(summary(estim)$roots)
 
