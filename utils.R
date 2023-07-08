@@ -18,7 +18,9 @@ pacman::p_load(dplyr,
                tseries,
                ggplot2,
                ggpubr,
-               expm) 
+               expm, 
+               readr,
+               forcats) 
 
 ###############################################
 ### Retrieve VAR MA-form coefficient matrices
@@ -128,7 +130,9 @@ irf <- function(A_mats, impact_mat, gamma_opt, h){
 ###################################################
 ### Plot IRF
 
-plot_irf <- function(data, endog_vars, response_var, h, flip=FALSE){
+plot_irf <- function(data, endog_vars, response_var, irf_horizon, fev_horizon, flip=FALSE){
+  
+  h = irf_horizon
   
   # Select VAR-relevant series
   data_var <- data %>%
@@ -140,7 +144,7 @@ plot_irf <- function(data, endog_vars, response_var, h, flip=FALSE){
   print(summary(estim)$roots)
   
   ### Obtain all necessary (reduced-form) matrix objects 
-  A_mats <- get_A(estim, 40)
+  A_mats <- get_A(estim, h)
   sigma_mat <- get_sigma(estim)
   impact_mat <- t(chol(sigma_mat))
   
@@ -150,7 +154,7 @@ plot_irf <- function(data, endog_vars, response_var, h, flip=FALSE){
                              i = 1, 
                              A = A_mats, 
                              Sigma = sigma_mat, 
-                             h=40, 
+                             h=fev_horizon, 
                              control = list(fnscale=-1), 
                              method = "L-BFGS-B",
                              lower=c(-0.000000000000001,rep(-Inf,6)), 
@@ -184,8 +188,9 @@ plot_irf <- function(data, endog_vars, response_var, h, flip=FALSE){
     irfs_df_long %>% mutate(response = -response)
   }
   
-  ggplot(irfs_df_long %>% dplyr::filter(variable %in% response_var), aes(x=horizon,y=response,linetype=variable)) +
-    geom_line() +
+  ggplot(irfs_df_long %>% dplyr::filter(variable %in% response_var), 
+         aes(x=horizon,y=response)) +
+    geom_line(linetype= "solid", size = 1) +
     theme_bw() + 
     xlab("Quarters")
 }

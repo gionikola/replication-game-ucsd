@@ -1,5 +1,8 @@
 source("utils.R")
 
+# Set seed 
+set.seed(07072023)
+
 ###############################################
 ### Import data
 
@@ -99,9 +102,19 @@ irfs_df_long$variable <- factor(irfs_df_long$variable, levels = c("TFP",
                                                                   "S&P 500",
                                                                   "Inflation"))
 
+
+### import results using their code/specification/data for comparison
+GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("GZ Spread_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+
 ### Plot IRFs (Fig 1)
 fig1 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
-  geom_line() +
+  geom_line(data = GZ_Spread_IRF_TFP_news_fig1, aes(x = horizon, y = response), linetype = "dashed")+
+  geom_ribbon(data = GZ_Spread_IRF_TFP_news_fig1, aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)+
+  geom_line(size = 1) +
   facet_wrap(. ~ variable, scale = "free", nrow=2) +
   theme_bw() +
   xlab("Quarters") + ylab(NULL)
@@ -119,26 +132,66 @@ ggsave(filename = "figures/fig1.png", fig1,
 ###############################################
 ###############################################
 
+### import responses from replication files
+
+GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("GZ Spread_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+DR_IRF_TFP_news_fig1 <- readr::read_csv("Default Risk_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+BE_IRF_TFP_news_fig1 <- readr::read_csv("Bank Equity_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+EBP_IRF_TFP_news_fig1 <- readr::read_csv("Excess Bond Premium_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+SLOOS_IRF_TFP_news_fig1 <- readr::read_csv("SLOOS_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+
 ### GZ spread (facet 1)
 p_gz_spread <- plot_irf(data, 
          c("tfp","output","consumption","hours","gz_spread","sp500","gdp_deflator"), 
          c("gz_spread"), 
-         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("GZ spread")
+         40, 
+         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("GZ spread") +
+  geom_line(data = filter(GZ_Spread_IRF_TFP_news_fig1, variable == "GZ spread"),  linetype = "dashed") +
+  geom_ribbon(data = filter(GZ_Spread_IRF_TFP_news_fig1, variable == "GZ spread"), aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)
+  
 
 ### Excess bond premium (facet 2)
 
 p_ebp <- plot_irf(data, 
          c("tfp","output","consumption","hours","ebp","sp500","gdp_deflator"), 
          c("ebp"), 
+         40, 
          40,
-         TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Excess bond premium")
+         TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Excess bond premium")+
+  geom_line(data = filter(EBP_IRF_TFP_news_fig1, variable == "Excess Bond Premium"),  linetype = "dashed")+
+  geom_ribbon(data = filter(EBP_IRF_TFP_news_fig1, variable == "Excess Bond Premium"), aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)
+
 
 ### Default risk (facet 3)
 
 p_default_risk<- plot_irf(data, 
          c("tfp","output","consumption","hours","default_risk","sp500","gdp_deflator"), 
          c("default_risk"), 
-         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Default risk")
+         40, 
+         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Default risk")+
+  geom_line(data = filter(DR_IRF_TFP_news_fig1, variable == "Default Risk"),  linetype = "dashed")+
+  geom_ribbon(data = filter(DR_IRF_TFP_news_fig1, variable == "Default Risk"), aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)
+
 
 ### Bank equity (facet 4)
 
@@ -146,14 +199,22 @@ p_bank_equity <- plot_irf(data,
          c("tfp","output","consumption","hours","bank_equity","sp500","gdp_deflator"), 
          c("bank_equity"), 
          40,
-         TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Bank equity")
+         40,
+         TRUE) + ylab(NULL)  + theme(legend.position="none") + ggtitle("Bank equity")+
+  geom_line(data = filter(BE_IRF_TFP_news_fig1, variable == "Bank Equity"),  linetype = "dashed")+
+  geom_ribbon(data = filter(BE_IRF_TFP_news_fig1, variable == "Bank Equity"), aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)
+
 
 ### SLOOS (facet 5)
 
 p_sloos <- plot_irf(data %>% filter(is.na(sloos)==FALSE), 
          c("tfp","output","consumption","hours","sloos","sp500","gdp_deflator"), 
          c("sloos"), 
-         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("SLOOS")
+         40,
+         40) + ylab(NULL)  + theme(legend.position="none") + ggtitle("SLOOS")+
+  geom_line(data = filter(SLOOS_IRF_TFP_news_fig1, variable == "SLOOS"),  linetype = "dashed")+
+  geom_ribbon(data = filter(SLOOS_IRF_TFP_news_fig1, variable == "SLOOS"), aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)
+
 
 ### Plot all facets in same fig (Fig 2)
 fig2 <- ggarrange(p_gz_spread, p_ebp, p_default_risk, p_bank_equity, p_sloos, nrow = 1, ncol = 5)
@@ -303,3 +364,105 @@ fig3 <- ggplot(irfs_df_long, aes(x=horizon, y=response, linetype=shock)) +
 ggsave(filename = "figures/fig3.png", fig3,
        width = 8, height = 4, dpi = 300, units = "in", device='png')
 fig3
+
+
+
+
+###############################################
+###############################################
+###############################################
+### REPLICATE FIG 1 -- different FEV horizon choice
+###############################################
+###############################################
+###############################################
+
+# Set IRF length
+h=40
+
+# Set FEV horizon
+fev_horizon=20
+
+# Set VAR number of lags 
+p=5
+
+# Select VAR-relevant series
+data_var <- data %>%
+  dplyr::select(tfp, output, consumption, hours, gz_spread, sp500, gdp_deflator)
+
+# Estimate VAR
+estim <- VAR(data_var, p = p, type = "const")
+print("Estimated model roots: ")
+print(summary(estim)$roots)
+
+### Obtain all necessary (reduced-form) matrix objects 
+A_mats <- get_A(estim, h)
+sigma_mat <- get_sigma(estim)
+impact_mat <- t(chol(sigma_mat))
+
+### Find news shock
+output_optim_gamma = optim(par = c(1,1,1,1,1,1,1), 
+                           fn = forecast_err_var, 
+                           i = 1, 
+                           A = A_mats, 
+                           Sigma = sigma_mat, 
+                           h=fev_horizon, 
+                           control = list(fnscale=-1), 
+                           method = "L-BFGS-B",
+                           lower=c(-0.000000000000001,rep(-Inf,6)), 
+                           upper=c(0.000000000000001, rep(Inf,6)))
+gamma_opt <- -output_optim_gamma$par/norm(output_optim_gamma$par,type="2")
+if(gamma_opt[1] < 0){
+  gamma_opt = -gamma_opt
+}
+
+### Generate IRFs
+irfs <- irf(A_mats, impact_mat, gamma_opt, h) * 100
+
+irfs_df <- data.frame(horizon = c(0:h),
+                      tfp = irfs[,1],
+                      output = irfs[,2],
+                      consumption = irfs[,3],
+                      hours = irfs[,4],
+                      gz_spread = irfs[,5],
+                      sp500 = irfs[,6],
+                      gdp_deflator = irfs[,7])
+names(irfs_df) <- c("horizon", 
+                    "TFP",
+                    "Output",
+                    "Consumption",
+                    "Hours",
+                    "GZ spread",
+                    "S&P 500",
+                    "Inflation")
+
+irfs_df_long <- pivot_longer(irfs_df, cols = -c("horizon"), names_to = "variable", values_to = "response") 
+
+irfs_df_long$variable <- factor(irfs_df_long$variable, levels = c("TFP",
+                                                                  "Output",
+                                                                  "Consumption",
+                                                                  "Hours",
+                                                                  "GZ spread",
+                                                                  "S&P 500",
+                                                                  "Inflation"))
+
+
+### import results using their code/specification/data for comparison
+GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("GZ Spread_IRF_TFP_news_fig1.csv") %>% 
+  rename(horizon = Horizon,
+         response = Resp,) %>% 
+  mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
+  mutate(variable = forcats::as_factor(Variable))
+
+### Plot IRFs (Fig 1)
+fig1 <- ggplot(irfs_df_long, aes(x=horizon, y=response)) +
+  geom_line(data = GZ_Spread_IRF_TFP_news_fig1, aes(x = horizon, y = response), linetype = "dashed")+
+  geom_ribbon(data = GZ_Spread_IRF_TFP_news_fig1, aes(ymin = LowerCI, ymax = HigherCI), alpha = 0.5)+
+  geom_line(size = 1) +
+  facet_wrap(. ~ variable, scale = "free", nrow=2) +
+  theme_bw() +
+  xlab("Quarters") + ylab(NULL)
+fig1 
+
+### Save Fig 1
+ggsave(filename = "figures/fig1_shorter_h20.png", fig1,
+       width = 8, height = 4, dpi = 300, units = "in", device='png')
