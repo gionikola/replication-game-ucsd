@@ -101,7 +101,7 @@ irfs_df_long$variable <- factor(irfs_df_long$variable, levels = c("TFP",
                                                                   "GZ spread",
                                                                   "S&P 500",
                                                                   "Inflation"))
-GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("GZ Spread_IRF_TFP_news_fig1.csv") %>% 
+GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("data/original_irf_data/GZ Spread_IRF_TFP_news_fig1.csv") %>% 
   rename(horizon = Horizon,
          response = Resp,) %>% 
   mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
@@ -132,27 +132,27 @@ ggsave(filename = "figures/fig1_alt.png", fig1,
 
 ### import responses from replication files
 
-GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("GZ Spread_IRF_TFP_news_fig1.csv") %>% 
+GZ_Spread_IRF_TFP_news_fig1 <- readr::read_csv("data/original_irf_data/GZ Spread_IRF_TFP_news_fig1.csv") %>% 
   rename(horizon = Horizon,
          response = Resp,) %>% 
   mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
   mutate(variable = forcats::as_factor(Variable))
-DR_IRF_TFP_news_fig1 <- readr::read_csv("Default Risk_IRF_TFP_news_fig1.csv") %>% 
+DR_IRF_TFP_news_fig1 <- readr::read_csv("data/original_irf_data/Default Risk_IRF_TFP_news_fig1.csv") %>% 
   rename(horizon = Horizon,
          response = Resp,) %>% 
   #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
   mutate(variable = forcats::as_factor(Variable))
-BE_IRF_TFP_news_fig1 <- readr::read_csv("Bank Equity_IRF_TFP_news_fig1.csv") %>% 
+BE_IRF_TFP_news_fig1 <- readr::read_csv("data/original_irf_data/Bank Equity_IRF_TFP_news_fig1.csv") %>% 
   rename(horizon = Horizon,
          response = Resp,) %>% 
   #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
   mutate(variable = forcats::as_factor(Variable))
-EBP_IRF_TFP_news_fig1 <- readr::read_csv("Excess Bond Premium_IRF_TFP_news_fig1.csv") %>% 
+EBP_IRF_TFP_news_fig1 <- readr::read_csv("data/original_irf_data/Excess Bond Premium_IRF_TFP_news_fig1.csv") %>% 
   rename(horizon = Horizon,
          response = Resp,) %>% 
   #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
   mutate(variable = forcats::as_factor(Variable))
-SLOOS_IRF_TFP_news_fig1 <- readr::read_csv("SLOOS_IRF_TFP_news_fig1.csv") %>% 
+SLOOS_IRF_TFP_news_fig1 <- readr::read_csv("data/original_irf_data/SLOOS_IRF_TFP_news_fig1.csv") %>% 
   rename(horizon = Horizon,
          response = Resp,) %>% 
   #mutate(Variable = case_when(Variable == "GZ Spread" ~ "GZ spread", TRUE ~ Variable)) %>% 
